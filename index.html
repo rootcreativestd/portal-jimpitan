@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kas Jimpitan RT 08 RW 01</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased">
+
+  <header class="bg-emerald-700 text-white shadow-md">
+    <div class="max-w-5xl mx-auto px-4 py-6">
+      <h1 class="text-xl md:text-2xl font-bold tracking-tight">KAS JIMPITAN RT 08 RW 01</h1>
+      <p class="text-emerald-100 text-sm mt-1">Tahun 2026 • Portal Informasi &amp; Transparansi Keuangan Warga</p>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- Status Loading / Error -->
+    <div id="status-box" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
+      <p class="text-sm text-slate-500 mt-2">Mengambil data terbaru dari Google Sheets...</p>
+    </div>
+
+    <div id="content" class="hidden space-y-6">
+
+      <!-- 4 Kartu Ringkasan -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 uppercase">Total Pemasukan</p>
+          <p id="card-masuk" class="text-2xl font-bold text-emerald-600 mt-1">Rp0</p>
+          <p class="text-xs text-slate-400 mt-1">Akumulasi Penerimaan 2026</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 uppercase">Total Pengeluaran</p>
+          <p id="card-keluar" class="text-2xl font-bold text-rose-600 mt-1">Rp0</p>
+          <p class="text-xs text-slate-400 mt-1">Sosial, Operasional &amp; Fasilitas</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 uppercase">Saldo Kas Saat Ini</p>
+          <p id="card-saldo" class="text-2xl font-bold text-slate-800 mt-1">Rp0</p>
+          <p class="text-xs text-slate-400 mt-1">Tersedia di Kas Bendahara</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+          <p class="text-xs font-semibold text-slate-500 uppercase">Rata-rata Per Bulan</p>
+          <p id="card-rata" class="text-2xl font-bold text-blue-600 mt-1">Rp0</p>
+          <p class="text-xs text-slate-400 mt-1">Rata-rata Bulan Aktif</p>
+        </div>
+      </div>
+
+      <!-- Tabel Mingguan -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50">
+          <div>
+            <h2 class="font-bold text-slate-800">Rincian Jimpitan Mingguan</h2>
+            <p class="text-xs text-slate-500">Pilih bulan untuk melihat setoran per wilayah</p>
+          </div>
+          <select id="filter-bulan" onchange="renderMingguan()" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </select>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+              <tr>
+                <th class="px-4 py-3">Minggu Ke</th>
+                <th class="px-4 py-3">Tanggal</th>
+                <th class="px-4 py-3 text-right">Timur</th>
+                <th class="px-4 py-3 text-right">Barat</th>
+                <th class="px-4 py-3 text-right">Selatan</th>
+                <th class="px-4 py-3 text-right font-bold">Total</th>
+                <th class="px-4 py-3">Status Setor</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-mingguan" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tabel Bulanan -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50">
+          <h2 class="font-bold text-slate-800">Rekapitulasi Kas Bulanan (2026)</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+              <tr>
+                <th class="px-4 py-3">Bulan</th>
+                <th class="px-4 py-3 text-right">Timur</th>
+                <th class="px-4 py-3 text-right">Barat</th>
+                <th class="px-4 py-3 text-right">Selatan</th>
+                <th class="px-4 py-3 text-right">Pemasukan</th>
+                <th class="px-4 py-3 text-right">Pengeluaran</th>
+                <th class="px-4 py-3 text-right font-bold">Saldo Bulanan</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-bulanan" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tabel Pengeluaran -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50">
+          <h2 class="font-bold text-slate-800">Catatan Pengeluaran Kas</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+              <tr>
+                <th class="px-4 py-3">Tanggal</th>
+                <th class="px-4 py-3">Kategori</th>
+                <th class="px-4 py-3">Keterangan / Penerima</th>
+                <th class="px-4 py-3">Bukti</th>
+                <th class="px-4 py-3 text-right">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-keluar" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-xs text-emerald-900 space-y-1">
+        <p class="font-bold">Ketentuan &amp; Transparansi Pengelolaan Dana Jimpitan:</p>
+        <p>• <strong>Jadwal Pengambilan:</strong> Jimpitan diambil rutin setiap hari Jumat.</p>
+        <p>• <strong>Pembagian Wilayah:</strong> Wilayah Timur (Bpk Mustofa Kamal), Wilayah Barat (Bpk Ahmad Subandi), dan Wilayah Selatan (Bpk Mahmud Fadli).</p>
+        <p>• Data diperbarui otomatis dari pembukuan bendahara RT 08 RW 01.</p>
+      </footer>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

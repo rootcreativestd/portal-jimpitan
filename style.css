@@ -1,0 +1,8 @@
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mempertegas garis batas antar baris tabel pada layar sempit */
+table tbody tr {
+  transition: background-color 0.15s ease;
+}
